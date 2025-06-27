@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tienda</title>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="/css/estilo.css" media="screen">
+    <link rel="stylesheet" href="/css/ListaProductos.css" media="screen">
+    
+    <!-- Scripts -->
+    <script class="u-script" type="text/javascript" src="/js/jquery.js" defer></script>
+    <script class="u-script" type="text/javascript" src="/js/estilo.js" defer></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <style>
+        .u-repeater {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 30px; 
+            padding: 30px;
+        }
+
+        .u-repeater-item {
+            border: 1px solid #ffffff;
+            padding: 15px;
+            background: white;
+            text-align: center; 
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+        }
+
+        .u-image {
+            width: 100%; 
+            max-height: 250px; 
+            object-fit: contain; 
+            display: block;
+            margin: auto;
+        }
+
+            
+        .u-price-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center; 
+            margin-top: 10px;
+        }
+
+
+        .u-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+            margin-top: 20px; 
+            padding: 10px;
+            background-color: #478ac9;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            width: 80%; 
+        }
+
+        .u-btn:hover {
+            background-color: #3578a8;
+        }
+
+        h3{
+            font-weight: 400;
+            font-size: 2.25rem;
+            line-height: 1.2;
+            margin-top: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+         </style>
+</head>
+
+<body>
+    <h3>Lista de Productos</h3>
+    
+
+    <div class="u-repeater u-repeater-1"></div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchProducts();
+        });
+
+        async function fetchProducts() {
+            try {
+                const response = await fetch("http://localhost:3000/products");
+                const products = await response.json();
+
+                const container = document.querySelector(".u-repeater"); 
+                if (!container) {
+                    console.error("Error: No se encontró el contenedor .u-repeater");
+                    return;
+                }
+
+                container.innerHTML = products.map((product, index) => `
+                    <div class="u-align-center u-container-align-center u-container-style u-products-item u-repeater-item u-white u-repeater-item-${index + 1}" data-product-id="${product.id}">
+                        <div class="u-container-layout u-similar-container u-valign-top u-container-layout-4">
+                            <!-- Imagen del producto -->
+                            <img alt="${product.name}" class="u-expanded-width u-image u-image-contain u-image-default u-product-control u-image-${index + 1}" src="${product.image}">
+                            
+                            <!-- Título del producto -->
+                            <h4 class="u-align-center u-custom-font u-font-oswald u-product-control u-text u-text-default u-text-${index + 1}">
+                                <a class="u-product-title-link" href="/products/${product.id}.html">${product.name}</a>
+                            </h4>
+                            
+                            <!-- Precio del producto -->
+                            <div class="u-price-wrapper">
+                                <div class="u-old-price" style="text-decoration: line-through !important;"></div>
+                                <div class="u-price u-text-grey-80" style="font-size: 1.25rem; font-weight: 700;">$${product.price}</div>
+                            </div>
+                            
+                            <!-- Botón de compra -->
+                            <a href="javascript:void(0);" class="u-btn" onclick="comprarProducto('${product.id}')">
+                                Comprar
+                            </a>
+                        </div>
+                    </div>
+                `).join(""); 
+            } catch (error) {
+                console.error("Error cargando productos:", error);
+            }
+        }
+
+        function comprarProducto(productId) {
+            fetch("http://localhost:3000/create-checkout-session", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ productId }), 
+            })
+            .then(response => response.json())
+            .then(data => window.location.href = data.url) 
+            .catch(error => console.error("Error al comprar:", error));
+        }
+    </script>
+
+
+
+  </body>
+</html>
