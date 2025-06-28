@@ -1,4 +1,4 @@
 import serverless from "serverless-http";
-import app from "../src/index.js"; // Importa la app sin arrancar el servidor
+import app from "../src/index.js";
 
-export const handler = serverless(app);
+export default serverless(app);
