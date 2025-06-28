@@ -1,19 +1,25 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from "url";
+import { PORT } from "./config.js";
 import indexRoutes from "./routes/payment.routes.js";
 import productRoutes from "./routes/product.routes.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
+// Initializations
 const app = express();
 
+// Middlewares
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(productRoutes);
-app.use(indexRoutes);
-app.use(express.static(path.resolve(__dirname, "public")));
-app.use(express.static(path.resolve(__dirname, "assets")));
 
-export default app;
+// Routes
+app.use(indexRoutes);
+
+// Static files
+app.use(express.static(path.resolve("src/public")));
+app.use(express.static(path.resolve("src/assets")));
+
+
+// Start Server
+app.listen(PORT);
+console.log("Server on port", PORT);
